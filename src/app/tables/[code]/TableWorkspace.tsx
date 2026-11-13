@@ -118,7 +118,7 @@ export default function TableWorkspace({ table, rows }: { table: TableDef; rows:
                   <tr key={row.id}>
                     {columns.map((column) => (
                       <td key={column.key} className="max-w-xs">
-                        <span className="line-clamp-4" title={row.payload[column.key] || ""}>
+                        <span className="whitespace-pre-line line-clamp-6" title={row.payload[column.key] || ""}>
                           {row.payload[column.key] || "—"}
                         </span>
                       </td>

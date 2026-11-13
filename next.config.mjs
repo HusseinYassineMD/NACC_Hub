@@ -2,6 +2,7 @@
 const nextConfig = {
   trailingSlash: true,
   experimental: {
+    externalDir: true,
     serverComponentsExternalPackages: ["@libsql/client"],
   },
 };

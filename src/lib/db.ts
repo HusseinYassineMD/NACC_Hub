@@ -2,6 +2,8 @@ import "server-only";
 
 import { unstable_noStore as noStore } from "next/cache";
 import { findTable, type TableDef } from "./catalog";
+import tableASeed from "../../Table_A_Workflow/seed.json";
+import tableESeed from "../../Table_E_Workflow/seed.json";
 import { createSqlDb, remoteDatabaseConfig, type SqlDb } from "./sql-db";
 
 export type StoredRow = {
@@ -22,6 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_rppr_records_code ON rppr_records(table_code);
 `;
 
 let opening: Promise<SqlDb> | null = null;
+let seeding: Promise<void> | null = null;
 
 function openDatabase(): Promise<SqlDb> {
   if (!opening) {
@@ -31,6 +34,34 @@ function openDatabase(): Promise<SqlDb> {
     });
   }
   return opening;
+}
+
+async function ensureSeeded(): Promise<void> {
+  if (!seeding) {
+    seeding = seedEmptyAdminTables().catch((err) => {
+      seeding = null;
+      throw err;
+    });
+  }
+  await seeding;
+}
+
+async function seedEmptyAdminTables(): Promise<void> {
+  const database = await openDatabase();
+  const seed = { ...tableASeed, ...tableESeed } as Record<string, Record<string, string>[]>;
+  for (const [code, rows] of Object.entries(seed)) {
+    const existing = await database.get<{ c: number }>(
+      "SELECT COUNT(*) AS c FROM rppr_records WHERE table_code = :code",
+      { code }
+    );
+    if (Number(existing?.c ?? 0) > 0 || rows.length === 0) continue;
+    await database.batch(
+      rows.map((payload) => ({
+        sql: "INSERT INTO rppr_records (table_code, payload_json) VALUES (:code, :payload)",
+        args: { code, payload: JSON.stringify(payload) },
+      }))
+    );
+  }
 }
 
 async function initDatabase(): Promise<SqlDb> {
@@ -52,6 +83,7 @@ async function initDatabase(): Promise<SqlDb> {
 
 export async function countByTable(): Promise<Record<string, number>> {
   noStore();
+  await ensureSeeded();
   const database = await openDatabase();
   const rows = await database.all<{ table_code: string; c: number }>(
     "SELECT table_code, COUNT(*) AS c FROM rppr_records GROUP BY table_code"
@@ -63,6 +95,7 @@ export async function countByTable(): Promise<Record<string, number>> {
 
 export async function listRecords(code: string): Promise<StoredRow[]> {
   noStore();
+  await ensureSeeded();
   const database = await openDatabase();
   const rows = await database.all<{ id: number; payload_json: string; updated_at: string }>(
     "SELECT id, payload_json, updated_at FROM rppr_records WHERE table_code = :code ORDER BY id DESC",
@@ -76,10 +109,17 @@ export async function listRecords(code: string): Promise<StoredRow[]> {
 }
 
 export async function insertRecord(table: TableDef, payload: Record<string, string>): Promise<void> {
+  await insertRecords(table, [payload]);
+}
+
+export async function insertRecords(table: TableDef, payloads: Record<string, string>[]): Promise<void> {
+  if (payloads.length === 0) return;
   const database = await openDatabase();
-  await database.run(
-    "INSERT INTO rppr_records (table_code, payload_json) VALUES (:code, :payload)",
-    { code: table.code, payload: JSON.stringify(payload) }
+  await database.batch(
+    payloads.map((payload) => ({
+      sql: "INSERT INTO rppr_records (table_code, payload_json) VALUES (:code, :payload)",
+      args: { code: table.code, payload: JSON.stringify(payload) },
+    }))
   );
 }
 

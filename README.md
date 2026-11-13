@@ -1,10 +1,21 @@
 # NACC RPPR table hub
 
-Landing page for the ADRC progress-report tables. Each admin, clinical, and ORE table has its own page for entering rows and reviewing what was saved. Tables G1 and G2 open the REC faculty workflow at https://rec-faculty-workflow.vercel.app/rppr/.
+Landing page for the ADRC progress-report tables. Each letter is its own workflow folder.
 
 **Live site:** https://nacc-hub.vercel.app/
 
-The site is hosted on Vercel, so it stays up when a laptop is asleep. Rows for A1–A7, B1, B2, E1, and E2 are stored in the same Turso database as the faculty workflow, in a separate `rppr_records` table.
+## Workflow folders
+
+| Folder | Tables | Notes |
+|---|---|---|
+| [`Table_A_Workflow/`](./Table_A_Workflow) | A1–A7 | Admin tables, seed data, Overview / Intake / RPPR |
+| [`Table_B_Workflow/`](./Table_B_Workflow) | B1–B2 | Clinical imaging tables |
+| [`Table_E_Workflow/`](./Table_E_Workflow) | E1–E2 | ORE outreach tables |
+| [`Table_G_Workflow/`](./Table_G_Workflow) | G1–G2 | Points to the separate [REC faculty workflow](https://github.com/HusseinYassineMD/REC_Faculty_Workflow) |
+
+The hub shell (`src/`) is the landing page and shared database helpers. Routes under `/w/a`, `/w/b`, and `/w/e` re-export the pages from each workflow folder.
+
+Rows for A, B, and E are stored in the same Turso database as the faculty workflow, in `rppr_records`. G1 and G2 use the faculty roster tables on that same database.
 
 ## Run locally
 

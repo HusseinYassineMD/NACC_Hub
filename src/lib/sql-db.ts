@@ -16,6 +16,7 @@ export type SqlDb = {
   all<T>(sql: string, args?: SqlArgs): Promise<T[]>;
   get<T>(sql: string, args?: SqlArgs): Promise<T | undefined>;
   run(sql: string, args?: SqlArgs): Promise<{ changes: number }>;
+  batch(statements: { sql: string; args?: SqlArgs }[]): Promise<void>;
 };
 
 type RemoteConfig = { url: string; authToken: string };
@@ -66,6 +67,13 @@ function wrap(client: Client): SqlDb {
     async run(sql, args) {
       const result = await client.execute({ sql, args: toInArgs(args) });
       return { changes: result.rowsAffected };
+    },
+    async batch(statements) {
+      if (statements.length === 0) return;
+      await client.batch(
+        statements.map((statement) => ({ sql: statement.sql, args: toInArgs(statement.args) })),
+        "write"
+      );
     },
   };
 }
