@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   INPUT_DEADLINE,
   NACC_REFERENCE,
-  REC_FACULTY_URL,
+  REC_RPPR_URL,
   WORKFLOWS,
   tablesInGroup,
 } from "@/lib/catalog";
@@ -46,7 +46,7 @@ export default async function HomePage() {
         ) : (
           <p className="rounded-2xl border border-white/70 bg-white/90 px-4 py-3 text-sm text-slate-600 shadow-card">
             Year 6 rows from the shared files are already in the tables. New rows can be typed, imported from Excel,
-            or downloaded as a CSV, PDF, or JSON report. Table G opens the REC faculty workflow.
+            or downloaded as a CSV, PDF, or JSON report. Table G opens G1 and G2 on the REC faculty site.
           </p>
         )}
 
@@ -71,16 +71,16 @@ export default async function HomePage() {
               </Link>
             );
           })}
-          <a href={REC_FACULTY_URL} className="card-link">
+          <a href={REC_RPPR_URL} className="card-link">
             <div className="flex items-start justify-between gap-3">
               <span className="font-display text-3xl font-bold text-cpbh-navy">Table G</span>
               <span className="pill-teal">REC faculty workflow</span>
             </div>
             <p className="mt-3 text-sm font-semibold text-cpbh-navy">G1  G2</p>
             <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
-              Scholars, trainees, and events. Overview, intake, and RPPR, with G1 and G2 at the top of the report.
+              One click opens G1 and G2. Switch tables at the top. Overview and Intake stay in the same faculty workflow.
             </p>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Opens the REC faculty site</p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Opens G1 · G2 on the REC site</p>
             <p className="mt-3 text-sm font-semibold text-cpbh-navy">
               Open workflow <span aria-hidden>→</span>
             </p>
