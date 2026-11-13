@@ -12,3 +12,5 @@ data/*.sqlite-wal
 .env*.local
 tsconfig.tsbuildinfo
 .vercel
+.env*
+!.env.example
